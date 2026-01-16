@@ -1,70 +1,290 @@
-# Getting Started with Create React App
+# AI Workout Tracker
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+A comprehensive web-based fitness tracking application with AI-powered workout analysis and progression suggestions.
+
+![React](https://img.shields.io/badge/React-18.2.0-blue)
+![Firebase](https://img.shields.io/badge/Firebase-Realtime%20Database-orange)
+![Groq](https://img.shields.io/badge/AI-Groq%20LLaMA%203.1-green)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38bdf8)
+
+## Features
+
+### 🏋️ Workout Management
+- Create and manage multiple workout routines
+- Support for 7-day split routines with customizable exercises
+- Exercise-level configuration: sets, target reps, rest time
+- Pre-loaded demo routines to get started quickly
+
+### 📊 Active Workout Tracking
+- Real-time workout session interface
+- Set-by-set tracking: weight, reps, RPE (Rate of Perceived Exertion)
+- Exercise reordering during workouts
+- Auto-save functionality with recovery on app reload
+- Workout duration tracking
+
+### 🤖 AI-Powered Features (Groq LLaMA 3.1)
+- **Routine Analysis**: Full routine analysis and optimization suggestions
+- **Day-Level Analysis**: Analyze individual workout days
+- **Progression Suggestions**: AI recommendations for weight/rep progression based on:
+  - Exercise history and performance
+  - RPE scores
+  - User goals (Bodybuilding, Powerlifting, General Fitness, etc.)
+  - Experience level (Beginner, Intermediate, Advanced)
+- **Exercise Information**: AI-generated form guides, tips, and progressions
+
+### 📈 Progress Analytics
+- Workout history with duration and volume tracking
+- Last 4 weeks analytics dashboard
+- Muscle group volume distribution charts
+- Total sets, workouts, and duration metrics
+
+### 🗄️ Exercise Database
+- Public exercise database with:
+  - Muscle groups and difficulty levels
+  - Equipment requirements
+  - Form guides and safety tips
+  - Common mistakes and progressions
+- Search functionality
+- Dynamic exercise info generation via AI
+
+## Technology Stack
+
+### Frontend
+- **React 18.2.0** - UI library
+- **Tailwind CSS 3.4.1** - Styling
+- **Lucide React** - Icon library
+- **Firebase SDK** - Authentication & Realtime Database
+
+### Backend
+- **Firebase Cloud Functions** - Serverless backend (Node.js 20)
+- **Groq API** - AI-powered analysis using LLaMA 3.1 70B
+- **Firebase Realtime Database** - Data persistence
+- **Firebase Authentication** - User management
+
+## Getting Started
+
+### Prerequisites
+- Node.js 16+ and npm
+- Firebase CLI: `npm install -g firebase-tools`
+- A Firebase project ([Create one here](https://console.firebase.google.com/))
+- A Groq API key ([Get it free here](https://console.groq.com/))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone <your-repo-url>
+   cd Workout-app-v2
+   ```
+
+2. **Install dependencies**
+   ```bash
+   # Install frontend dependencies
+   npm install
+
+   # Install Firebase Functions dependencies
+   cd functions
+   npm install
+   cd ..
+   ```
+
+3. **Set up environment variables**
+
+   **Frontend (.env in root directory)**
+   ```bash
+   cp .env.example .env
+   ```
+   Edit `.env` and add your Firebase configuration:
+   ```env
+   REACT_APP_FIREBASE_API_KEY=your_firebase_api_key
+   REACT_APP_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+   REACT_APP_FIREBASE_DATABASE_URL=https://your_project.firebaseio.com
+   REACT_APP_FIREBASE_PROJECT_ID=your_project_id
+   REACT_APP_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+   REACT_APP_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
+   REACT_APP_FIREBASE_APP_ID=your_app_id
+   ```
+
+   **Backend (functions/.env)**
+   ```bash
+   cd functions
+   cp .env.example .env
+   ```
+   Edit `functions/.env` and add your Groq API key:
+   ```env
+   GROQ_API_KEY=your_groq_api_key_here
+   ```
+
+4. **Configure Firebase**
+   ```bash
+   firebase login
+   firebase use --add  # Select your Firebase project
+   ```
+
+5. **Deploy Firebase Functions**
+   ```bash
+   firebase deploy --only functions
+   ```
+
+6. **Start the development server**
+   ```bash
+   npm start
+   ```
+
+   The app will open at [http://localhost:3000](http://localhost:3000)
+
+## Project Structure
+
+```
+Workout-app-v2/
+├── src/
+│   ├── components/          # Reusable React components
+│   │   ├── ErrorBoundary.js
+│   │   ├── MainView.js
+│   │   ├── ActiveWorkoutView.js
+│   │   ├── RoutineEditorView.js
+│   │   ├── HistoryView.js
+│   │   ├── ExerciseCard.js
+│   │   └── AnalysisModal.js
+│   ├── contexts/           # React Context for state management
+│   │   └── AppContext.js
+│   ├── views/              # Page-level view components
+│   │   └── ProfileSetupView.js
+│   ├── hooks/              # Custom React hooks
+│   │   └── useProgressionSuggestion.js
+│   ├── utils/              # Utility functions
+│   │   ├── helpers.js
+│   │   └── logger.js
+│   ├── App.js              # Main application component
+│   ├── firebase.js         # Firebase configuration
+│   └── index.js            # Application entry point
+├── functions/              # Firebase Cloud Functions
+│   ├── index.js            # Cloud Functions definitions
+│   ├── utils/
+│   │   └── logger.js
+│   └── package.json
+├── public/                 # Static files
+├── .env                    # Frontend environment variables (not in git)
+├── .env.example            # Example env file
+├── firebase.json           # Firebase configuration
+├── tailwind.config.js      # Tailwind CSS configuration
+└── package.json            # Project dependencies
+```
 
 ## Available Scripts
 
-In the project directory, you can run:
+### Frontend
+- `npm start` - Start development server
+- `npm run build` - Build for production
+- `npm test` - Run tests
+- `npm run eject` - Eject from Create React App (irreversible)
 
-### `npm start`
+### Firebase Functions
+- `firebase deploy --only functions` - Deploy Cloud Functions
+- `firebase emulators:start` - Start Firebase emulators for local testing
+- `firebase logs` - View Cloud Functions logs
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Firebase Functions API
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### `analyzeRoutine`
+Analyzes a complete workout routine or single day using Groq AI.
 
-### `npm test`
+**Parameters:**
+- `routine` - Routine object (for full analysis)
+- `day` - Day object (for day analysis)
+- `profile` - User profile with goals and experience
+- `isDay` - Boolean flag for day-specific analysis
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+**Returns:** HTML-formatted analysis with recommendations
 
-### `npm run build`
+### `progressionSuggestion`
+Provides weight progression recommendations based on workout history.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+**Parameters:**
+- `exerciseName` - Name of the exercise
+- `history` - Array of previous workout sessions
+- `goal` - User's fitness goal
+- `experience` - User's experience level
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+**Returns:** Progression suggestion with color-coded indicator
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### `generateExerciseInfo`
+Generates comprehensive exercise information using AI.
 
-### `npm run eject`
+**Parameters:**
+- `exerciseName` - Name of the exercise
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+**Returns:** Exercise details including form, tips, and progression strategies
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Security Best Practices
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+✅ **Implemented:**
+- Environment variables for API keys
+- Firebase security rules (configure in Firebase Console)
+- Error boundaries for graceful error handling
+- Input validation on Cloud Functions
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+⚠️ **TODO:**
+- Set up Firebase Security Rules for database access
+- Implement rate limiting on Cloud Functions
+- Add CORS configuration if needed
+- Enable App Check for additional security
 
-## Learn More
+## Groq API Setup
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+1. Visit [console.groq.com](https://console.groq.com/)
+2. Create a free account
+3. Generate an API key
+4. Add the key to `functions/.env` as `GROQ_API_KEY`
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+**Free Tier Limits:**
+- Generous request limits
+- Fast inference (often faster than other providers)
+- Access to LLaMA 3.1 70B and other models
 
-### Code Splitting
+## Deployment
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Frontend (Firebase Hosting)
+```bash
+npm run build
+firebase deploy --only hosting
+```
 
-### Analyzing the Bundle Size
+### Backend (Cloud Functions)
+```bash
+firebase deploy --only functions
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Full Deployment
+```bash
+npm run build
+firebase deploy
+```
 
-### Making a Progressive Web App
+## Changelog
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### v2.0.0 (Current)
+- ✅ Migrated from Google Gemini to Groq AI
+- ✅ Added environment variables for security
+- ✅ Removed hardcoded credentials
+- ✅ Added Error Boundary component
+- ✅ Created Context API for state management
+- ✅ Added logging utilities
+- ✅ Improved code organization
+- ✅ Added comprehensive documentation
 
-### Advanced Configuration
+### v1.0.0
+- Initial release with Gemini AI integration
+- Basic workout tracking features
+- Firebase integration
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+## License
 
-### Deployment
+This project is licensed under the MIT License.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+## Acknowledgments
 
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- **Groq** for providing fast and free AI inference
+- **Firebase** for backend infrastructure
+- **Lucide** for beautiful icons
+- **Tailwind CSS** for rapid UI development

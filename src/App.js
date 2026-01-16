@@ -768,7 +768,6 @@ function App() {
   }
 
   const appId = 'my-workout-tracker-app-d8d61';
-  const adminUserId = 'dTF8r04xSUVzpGxtnJqaxx2eQ6I3';
 
   const publicRef = ref(db, `artifacts/${appId}/public/data/exercises`);
   const unsubPublic = onValue(
@@ -796,21 +795,7 @@ function App() {
       const data = snap.val();
       if (data && data.profile && data.profile.setupComplete) {
         setUserProfile({ ...defaultProfile, ...data.profile });
-        if (user.uid === adminUserId && (!data.routines || !data.routines.allRoutines[adminRoutine.id])) {
-          const newRoutinesData = {
-            activeRoutineId: adminRoutine.id,
-            allRoutines: { 
-              ...(data.routines?.allRoutines || {}), 
-              [adminRoutine.id]: {
-                ...adminRoutine,
-                days: normalizeDaysStructure(adminRoutine.days) // Normalize here
-              }
-            }
-          };
-          setRoutines(newRoutinesData.allRoutines);
-          setActiveRoutineId(newRoutinesData.activeRoutineId);
-          update(userRef, { routines: newRoutinesData });
-        } else if (data.routines) {
+        if (data.routines) {
           // Normalize all routine days
           const normalizedRoutines = {};
           Object.keys(data.routines.allRoutines).forEach(key => {
@@ -842,10 +827,10 @@ function App() {
       } else {
         setCurrentView('profileSetup');
         setUserProfile(defaultProfile);
-        const initialRoutine = user.uid === adminUserId ? adminRoutine : blankRoutineForNewUsers;
+        const initialRoutine = blankRoutineForNewUsers;
         const newRoutinesData = {
           activeRoutineId: initialRoutine.id,
-          allRoutines: { 
+          allRoutines: {
             [initialRoutine.id]: {
               ...initialRoutine,
               days: normalizeDaysStructure(initialRoutine.days)

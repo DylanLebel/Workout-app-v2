@@ -5,13 +5,13 @@ import { getFunctions } from 'firebase/functions';
 import { getAuth } from 'firebase/auth';
 
 const firebaseConfig = {
-  apiKey: 'AIzaSyDM3i689ESBlBx2pEEy05MZ5c3IY3PQp3w',
-  authDomain: 'my-workout-tracker-app-d8d61.firebaseapp.com',
-  databaseURL: 'https://my-workout-tracker-app-d8d61-default-rtdb.firebaseio.com',
-  projectId: 'my-workout-tracker-app-d8d61',
-  storageBucket: 'my-workout-tracker-app-d8d61.appspot.com',
-  messagingSenderId: '321079278500',
-  appId: '1:321079278500:web:587525f6cea6829745df31'
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY,
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
+  databaseURL: process.env.REACT_APP_FIREBASE_DATABASE_URL,
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.REACT_APP_FIREBASE_APP_ID
 };
 
 const app = initializeApp(firebaseConfig);

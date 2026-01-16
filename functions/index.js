@@ -7,27 +7,26 @@ admin.initializeApp();
 
 // Get API key from environment variables
 const getApiKey = () => {
-  // Try multiple possible environment variable names
-  const envKey = process.env.GEMINI_KEY || 
-                 process.env.GEMINI_API_KEY || 
-                 process.env.GOOGLE_API_KEY;
-  
+  // Try multiple possible environment variable names for Groq
+  const envKey = process.env.GROQ_API_KEY ||
+                 process.env.GROQ_KEY;
+
   if (envKey) {
-    console.log('API key found in environment variables');
+    console.log('Groq API key found in environment variables');
     return envKey;
   }
-  
+
   // Fallback to Firebase config (legacy method)
   try {
     const config = functions.config();
-    if (config.gemini && config.gemini.key) {
-      console.log('API key found in Firebase config');
-      return config.gemini.key;
+    if (config.groq && config.groq.key) {
+      console.log('Groq API key found in Firebase config');
+      return config.groq.key;
     }
   } catch (error) {
     console.log('No Firebase config available');
   }
-  
+
   console.log('No API key found');
   return null;
 };
@@ -186,7 +185,7 @@ exports.analyzeRoutine = functions.https.onCall(async (data, context) => {
           </div>
           <div style="padding: 15px; background: rgba(59, 130, 246, 0.1); border-left: 4px solid #3b82f6; margin: 10px 0;">
             <p>Your ${isDay ? 'workout day' : 'routine'} structure looks well-organized for your ${profile.goal.toLowerCase()} goals.</p>
-            <p><em>For detailed AI analysis, configure your Gemini API key in the Firebase Console.</em></p>
+            <p><em>For detailed AI analysis, configure your Groq API key in the Firebase Console.</em></p>
           </div>
         `
       };
@@ -275,69 +274,55 @@ FORMAT REQUIREMENTS:
 TONE: Professional but encouraging, like a knowledgeable trainer who wants to help the user succeed.
 `;
 
-      console.log('Calling Gemini API with prompt length:', prompt.length);
-      
-      // Call Gemini API with updated model
+      console.log('Calling Groq API with prompt length:', prompt.length);
+
+      // Call Groq API with LLaMA 3.1 70B model
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        'https://api.groq.com/openai/v1/chat/completions',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 1500,
-            },
-            safetySettings: [
+            model: 'llama-3.1-70b-versatile',
+            messages: [
               {
-                category: "HARM_CATEGORY_HARASSMENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                role: 'system',
+                content: 'You are an expert personal trainer and strength coach. Provide detailed, professional workout analysis in HTML format.'
               },
               {
-                category: "HARM_CATEGORY_HATE_SPEECH", 
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
-              },
-              {
-                category: "HARM_CATEGORY_DANGEROUS_CONTENT",
-                threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                role: 'user',
+                content: prompt
               }
-            ]
+            ],
+            temperature: 0.7,
+            max_tokens: 1500,
+            top_p: 0.95
           })
         }
       );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Gemini API error:', {
+        console.error('❌ Groq API error:', {
           status: response.status,
           statusText: response.statusText,
           error: errorText
         });
-        throw new Error(`Gemini API error: ${response.status} - ${errorText}`);
+        throw new Error(`Groq API error: ${response.status} - ${errorText}`);
       }
 
       const json = await response.json();
-      let analysisText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      let analysisText = json.choices?.[0]?.message?.content;
 
       if (!analysisText) {
         console.error('❌ No analysis text in response:', json);
-        throw new Error('No analysis content received from Gemini API');
+        throw new Error('No analysis content received from Groq API');
       }
 
-      console.log('✅ Gemini API response received, length:', analysisText.length);
+      console.log('✅ Groq API response received, length:', analysisText.length);
 
       // Clean up and format the response
       analysisText = analysisText
@@ -391,9 +376,8 @@ exports.testFunction = functions.https.onCall(async (data, context) => {
       functionVersion: '1.0.0',
       inputDataKeys: Object.keys(data || {}),
       environment: {
-        hasGeminiKey: !!process.env.GEMINI_KEY,
-        hasGeminiApiKey: !!process.env.GEMINI_API_KEY,
-        hasGoogleApiKey: !!process.env.GOOGLE_API_KEY
+        hasGroqKey: !!process.env.GROQ_KEY,
+        hasGroqApiKey: !!process.env.GROQ_API_KEY
       }
     };
   } catch (error) {
@@ -445,35 +429,42 @@ Provide practical, actionable information suitable for ${context.auth ? 'an auth
 Keep each field concise but informative.
 `;
 
-    console.log('Calling Gemini API for exercise info');
-    
+    console.log('Calling Groq API for exercise info');
+
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      'https://api.groq.com/openai/v1/chat/completions',
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`
         },
         body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }],
-          generationConfig: {
-            temperature: 0.3,
-            maxOutputTokens: 1000,
-          }
+          model: 'llama-3.1-70b-versatile',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are a fitness expert. Provide exercise information in valid JSON format only.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          temperature: 0.3,
+          max_tokens: 1000
         })
       }
     );
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('Gemini API error for exercise info:', response.status, errorText);
-      throw new Error(`Gemini API error: ${response.status}`);
+      console.error('Groq API error for exercise info:', response.status, errorText);
+      throw new Error(`Groq API error: ${response.status}`);
     }
 
     const json = await response.json();
-    const aiText = json.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    const aiText = json.choices?.[0]?.message?.content || '';
 
     console.log('Exercise info response received, length:', aiText.length);
 
@@ -663,38 +654,45 @@ RESPOND WITH ONLY THIS JSON FORMAT:
 Be specific about weight recommendations and consider the user's experience level.
 `;
 
-      console.log('🤖 Calling Gemini API for progression suggestion');
+      console.log('🤖 Calling Groq API for progression suggestion');
 
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        'https://api.groq.com/openai/v1/chat/completions',
         {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
           },
           body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }],
-            generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 250,
-            }
+            model: 'llama-3.1-70b-versatile',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert strength coach. Respond with valid JSON format only.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            temperature: 0.2,
+            max_tokens: 250
           })
         }
       );
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error('❌ Gemini API error for progression:', response.status, errorText);
-        throw new Error(`Gemini API error: ${response.status}`);
+        console.error('❌ Groq API error for progression:', response.status, errorText);
+        throw new Error(`Groq API error: ${response.status}`);
       }
 
       const json = await response.json();
-      const aiText = json.candidates?.[0]?.content?.parts?.[0]?.text;
+      const aiText = json.choices?.[0]?.message?.content;
       
       if (!aiText) {
-        throw new Error('No response from Gemini API');
+        throw new Error('No response from Groq API');
       }
 
       console.log('🤖 AI progression response received, length:', aiText.length);
